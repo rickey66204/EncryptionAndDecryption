@@ -1,6 +1,6 @@
 ﻿namespace WINDecrypt
 {
-    partial class FormEncrypt
+    partial class FormMainForm
     {
         /// <summary>
         /// 必需的设计器变量。

@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace WINDecrypt
 {
-    public partial class FormEncrypt : XtraForm
+    public partial class FormMainForm : XtraForm
     {
         /// <summary>
         /// 加密文件输出路径
@@ -30,7 +30,7 @@ namespace WINDecrypt
 
         public DataTable dtEncrypt { get; set; }
         public DataTable dtDecrypt { get; set; }
-        public FormEncrypt()
+        public FormMainForm()
         {
             InitializeComponent();
             this.Load += Form1_Load;
