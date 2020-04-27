@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -48,7 +49,7 @@ namespace WINDecrypt
                 new DataColumn("OutName"),
                 new DataColumn("OutExt")
             });
-            dtDecrypt= new DataTable();
+            dtDecrypt = new DataTable();
             dtDecrypt.Columns.AddRange(new DataColumn[] {
                 new DataColumn("DFileName"),
                 new DataColumn("DName"),
@@ -147,10 +148,10 @@ namespace WINDecrypt
         private void RepositoryItemButtonEditRemove_ButtonClick(object sender, DevExpress.XtraEditors.Controls.ButtonPressedEventArgs e)
         {
             var row = (gridControlEncrypt.DefaultView as GridView).GetFocusedDataRow();
-            if (row!=null)
+            if (row != null)
             {
                 int.TryParse(row["Progress"].ToString(), out int cur_progress);
-                if (cur_progress==100||cur_progress<1)
+                if (cur_progress == 100 || cur_progress < 1)
                 {
                     dtEncrypt.Rows.Remove(row);
                     gridControlEncrypt.RefreshDataSource();
@@ -223,12 +224,12 @@ namespace WINDecrypt
         {
             if (dtEncrypt?.Rows.Count > 0)
             {
-                Parallel.ForEach(dtEncrypt.Rows.Cast<DataRow>(), new Action<DataRow>(async dr =>
+                Parallel.ForEach(dtEncrypt.Rows.Cast<DataRow>(), new Action<DataRow>(dr =>
                 {
                     if (dr != null)
                     {
                         string dest = Path.Combine(dr["OutPath"].ToString(), Path.GetFileNameWithoutExtension(dr["OutName"].ToString()) + "." + dr["OutExt"].ToString());
-                        await Operating(dr["FileName"].ToString(), dest, dr["Pwd"].ToString(), true);
+                        var res = Operating(dr["FileName"].ToString(), dest, dr["Pwd"].ToString(), true);
                     }
                 }));
             }
@@ -243,6 +244,7 @@ namespace WINDecrypt
         /// <returns></returns>
         public async Task Operating(string inFile, string outFile, string pwd, bool type)
         {
+            CancellationTokenSource token = new CancellationTokenSource();
             var progress = new Progress<double>();
             progress.ProgressChanged += new EventHandler<double>((o, d) =>
             {
@@ -279,11 +281,11 @@ namespace WINDecrypt
             });
             if (type)
             {
-                await EncryptOperation.EncryptFile(inFile, outFile, pwd, progress);
+                await EncryptOperation.EncryptFile(inFile, outFile, pwd, progress, token);
             }
             else
             {
-                await EncryptOperation.DecryptFile(inFile, outFile, pwd, progress);
+                await EncryptOperation.DecryptFile(inFile, outFile, pwd, progress, token);
             }
         }
 
