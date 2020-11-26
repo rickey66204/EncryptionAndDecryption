@@ -121,12 +121,6 @@ namespace WINDecrypt
                                   progress.Report(((double)value / (double)lSize) * 100.00);
                               }
 
-                              fin.Flush();
-                              fin.Close();
-
-                              fout.Flush();
-                              fout.Close();
-
                               // 关闭加密流
                               chash.Flush();
                               chash.Close();
@@ -137,13 +131,19 @@ namespace WINDecrypt
                               // 输入文件写入散列
                               cout.Write(hash, 0, hash.Length);
 
+                              fin.Flush();
+                              fin.Close();
+
                               // 关闭文件流
                               cout.Flush();
+                              fout.Flush();
+
                               cout.Close();
+                              fout.Close();
                           }
                       }
                   }
-                  catch (Exception)
+                  catch (Exception ex)
                   {
                       token.Cancel();
                   }
@@ -241,10 +241,9 @@ namespace WINDecrypt
                                 token.Cancel();
                             }
                             cin.Flush();
-                            cin.Close();
-
                             fin.Flush();
                             fin.Close();
+                            cin.Close();
                         }
 
                         if (outValue != lSize)
@@ -254,9 +253,9 @@ namespace WINDecrypt
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    XtraMessageBox.Show("decrypt is failed");
+                    XtraMessageBox.Show($"decrypt is failed=>{ex.Message}");
                     token.Cancel();
                 }
             },token.Token);
